@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감각적인 수업 타이머</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4e5ef7;
+      --bg: #f0f2f5;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .timer-container {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 320px;
+      max-width: 90%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: var(--text-main);
+    }
+    .inputs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="number"] {
+      width: 70px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      text-align: center;
+    }
+    #display {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .progress {
+      width: 100%;
+      background: #e0e0e0;
+      border-radius: 6px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #3b49d1;
+    }
+    @media (max-width: 400px) {
+      #display { font-size: 36px; }
+      button { font-size: 14px; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-container">
+    <h1>수업 타이머</h1>
+    <div class="inputs">
+      <div><input type="number" id="minutes" min="0" value="0"><div>분</div></div>
+      <div><input type="number" id="seconds" min="0" max="59" value="0"><div>초</div></div>
+    </div>
+    <div id="display">00:00</div>
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="buttons">
+      <button id="start">시작</button>
+      <button id="pause">일시정지</button>
+      <button id="reset">리셋</button>
+    </div>
+  </div>
+  <script>
+    let timer = null;
+    let remainingTime = 0;
+    let initialTime = 0;
+    const display = document.getElementById('display');
+    const bar = document.querySelector('.progress-bar');
+
+    function updateDisplay() {
+      const m = Math.floor(remainingTime / 60);
+      const s = remainingTime % 60;
+      display.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+    function updateProgress() {
+      if (initialTime > 0) {
+        const percent = ((initialTime - remainingTime) / initialTime) * 100;
+        bar.style.width = percent + '%';
+      }
+    }
+
+    document.getElementById('start').addEventListener('click', () => {
+      if (!timer) {
+        const mins = parseInt(document.getElementById('minutes').value, 10) || 0;
+        const secs = parseInt(document.getElementById('seconds').value, 10) || 0;
+        if (remainingTime === 0) {
+          remainingTime = mins * 60 + secs;
+          initialTime = remainingTime;
+        }
+        timer = setInterval(() => {
+          if (remainingTime > 0) {
+            remainingTime--;
+            updateDisplay();
+            updateProgress();
+          } else {
+            clearInterval(timer);
+            timer = null;
+            alert('시간 종료!');
+          }
+        }, 1000);
+      }
+    });
+
+    document.getElementById('pause').addEventListener('click', () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      clearInterval(timer);
+      timer = null;
+      const mins = parseInt(document.getElementById('minutes').value, 10) || 0;
+      const secs = parseInt(document.getElementById('seconds').value, 10) || 0;
+      remainingTime = mins * 60 + secs;
+      initialTime = remainingTime;
+      updateDisplay();
+      bar.style.width = '0';
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
